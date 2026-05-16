@@ -1,0 +1,192 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  agent-1:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-1
+    ports:
+      - "8082:8082"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8082
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-2:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-2
+    ports:
+      - "8083:8083"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8083
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  master:
+    build:
+      context: ./recorder
+      dockerfile: ./master/backend/Dockerfile
+    container_name: recorder-master
+    ports:
+      - "8090:8090"
+    environment:
+      DATABASE_URL: postgres://recorder:recorder@postgres:5432/recorder?sslmode=disable
+      DESTINATION: /app/videos
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+    depends_on:
+      postgres:
+        condition: service_healthy
+      agent-1:
+        condition: service_healthy
+      agent-2:
+        condition: service_healthy
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    command:
+      [
+        "/app/bin/master",
+        "-listen", ":8090"
+      ]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./recorder/master/frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: recorder-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      master:
+        condition: service_healthy
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: recorder-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: recorder
+      POSTGRES_USER: recorder
+      POSTGRES_PASSWORD: recorder
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./recorder/master/backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recorder -d recorder"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: recorder-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts:/etc/prometheus/alerts:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      master:
+        condition: service_healthy
+      agent-1:
+        condition: service_healthy
+      agent-2:
+        condition: service_healthy
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: recorder-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_LOG_LEVEL: warn
+      GF_SERVER_ROUTER_LOGGING: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  recorder-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.250.0.0/24

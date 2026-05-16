@@ -1,0 +1,92 @@
+groups:
+  - name: recorder
+    rules:
+      - alert: RecorderMasterDown
+        expr: up{job="recorder-master"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Recorder master is down"
+          description: "Prometheus cannot scrape the recorder master target. See the alert labels for the instance."
+
+      - alert: RecorderAgentDown
+        expr: up{job="recorder-agents"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Recorder agent is down"
+          description: "Prometheus cannot scrape a recorder agent target. See the alert labels for the instance."
+
+      - alert: RecorderNoHealthyAgents
+        expr: master_agents_healthy == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No healthy recorder agents"
+          description: "Master does not see any healthy agents. Starting recordings is unavailable."
+
+      - alert: RecorderSomeAgentsUnhealthy
+        expr: (master_agents_healthy < master_agents_total) and on() (master_agents_total > 0)
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Some recorder agents are unhealthy"
+          description: "Master sees fewer healthy agents than configured."
+
+      - alert: RecorderNoFreeAgents
+        expr: master_agents_healthy - master_agents_busy <= 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No free recorder agents"
+          description: "All healthy recorder agents are busy. New recording cannot be started until one is free."
+
+      - alert: RecorderRoomCritical
+        expr: room_state{Room!="unknown"} <= -2
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Recorder room is in critical state"
+          description: "A recorder room is in critical state. See the alert labels for room and instance."
+
+      - alert: RecorderStreamWarning
+        expr: record_state == -1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Recorder stream failed"
+          description: "A recorder stream failed. See the alert labels for stream name, instance, and error."
+
+      - alert: RecorderStreamCritical
+        expr: record_state == -2
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical recorder stream failed"
+          description: "A significant recorder stream failed. See the alert labels for stream name, instance, and error."
+
+      - alert: RecorderPostprocessFailed
+        expr: increase(master_postprocess_runs_total{result="failed"}[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Recorder postprocess failed"
+          description: "At least one video stream postprocess failed during the last 15 minutes."
+
+      - alert: RecorderPostprocessStuck
+        expr: master_postprocess_active > 0
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Recorder postprocess may be stuck"
+          description: "Postprocess has been active for more than 1 hour."
