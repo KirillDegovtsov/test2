@@ -61,6 +61,230 @@ services:
       retries: 10
       start_period: 10s
 
+  agent-3:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-3
+    ports:
+      - "8084:8084"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8084
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-4:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-4
+    ports:
+      - "8085:8085"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8085
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-5:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-5
+    ports:
+      - "8086:8086"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8086
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-6:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-6
+    ports:
+      - "8087:8087"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8087
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-7:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-7
+    ports:
+      - "8088:8088"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8088
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-8:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-8
+    ports:
+      - "8089:8089"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8089
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-9:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-9
+    ports:
+      - "8091:8091"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8091
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  agent-10:
+    build:
+      context: ./recorder/agent
+      dockerfile: Dockerfile
+    container_name: recorder-agent-10
+    ports:
+      - "8092:8092"
+    environment:
+      GIN_MODE: release
+      GSTREAMER_PATH: gst-launch-1.0
+      RETRY_DELAY: 5
+      APP_PORT: 8092
+      METRICS_INTERVAL_MS: 3000
+      LOG_LEVEL: info
+    volumes:
+      - ./videos:/app/videos
+      - ./recorder/agent/static:/app/static:ro
+    networks:
+      - recorder-net
+    logging: *default-logging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
   master:
     build:
       context: ./recorder
@@ -68,6 +292,8 @@ services:
     container_name: recorder-master
     ports:
       - "8090:8090"
+    env_file:
+      - ./recorder/master/backend/.env
     environment:
       DATABASE_URL: postgres://recorder:recorder@postgres:5432/recorder?sslmode=disable
       DESTINATION: /app/videos
@@ -80,6 +306,22 @@ services:
       agent-1:
         condition: service_healthy
       agent-2:
+        condition: service_healthy
+      agent-3:
+        condition: service_healthy
+      agent-4:
+        condition: service_healthy
+      agent-5:
+        condition: service_healthy
+      agent-6:
+        condition: service_healthy
+      agent-7:
+        condition: service_healthy
+      agent-8:
+        condition: service_healthy
+      agent-9:
+        condition: service_healthy
+      agent-10:
         condition: service_healthy
     networks:
       - recorder-net
@@ -150,6 +392,22 @@ services:
       agent-1:
         condition: service_healthy
       agent-2:
+        condition: service_healthy
+      agent-3:
+        condition: service_healthy
+      agent-4:
+        condition: service_healthy
+      agent-5:
+        condition: service_healthy
+      agent-6:
+        condition: service_healthy
+      agent-7:
+        condition: service_healthy
+      agent-8:
+        condition: service_healthy
+      agent-9:
+        condition: service_healthy
+      agent-10:
         condition: service_healthy
     networks:
       - recorder-net

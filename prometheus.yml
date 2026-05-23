@@ -18,3 +18,11 @@ scrape_configs:
       - targets:
           - agent-1:8082
           - agent-2:8083
+          - agent-3:8084
+          - agent-4:8085
+          - agent-5:8086
+          - agent-6:8087
+          - agent-7:8088
+          - agent-8:8089
+          - agent-9:8091
+          - agent-10:8092
